@@ -4,34 +4,22 @@ var router = express.Router();
 const moment = require('moment');
 const Trip = require('../models/trips'); // Importer le modèle de trajet
 
-// Route GET pour afficher tous les trajets ou rechercher des trajets par critères spécifiques
 router.get('/', (req, res) => {
-    const { departure, arrival, date } = req.query; // Récupérer les paramètres de requête
-
-    // Vérifier si des paramètres de recherche sont fournis
-    if (departure && arrival && date) {
-        // Formater la date avec Moment.js
-        const formattedDate = moment(date, 'YYYY-MM-DD').toDate();
-
-        // Rechercher les trajets correspondant aux critères de recherche
-        Trip.find({ departure, arrival, 'date.$date': formattedDate }).then(foundTrips => {
-            res.json({ result: true, trips: foundTrips }); // Renvoyer les trajets trouvés en réponse JSON
-        }).catch(error => {
-            res.status(500).json({ result: false, error: 'Une erreur s\'est produite lors de la recherche des trajets.' });
-        });
-    } else {
-        // Si aucun paramètre de recherche n'est fourni, renvoyer tous les trajets
-        Trip.find().then(allTrips => {
-            res.json({ result: true, allTrips }); // Renvoyer tous les trajets en réponse JSON
-        }).catch(error => {
-            res.status(500).json({ result: false, error: 'Une erreur s\'est produite lors de la récupération de tous les trajets.' });
-        });
-    }
+    // Recherche de tous les documents dans la collection de trajets
+    Trip.find().then(data => {
+        // Envoi d'une réponse JSON contenant les trajets trouvés
+        res.json({ result: true , allTrips: data });
+    });
 });
 
 // Route POST pour rechercher des trajets disponibles pour aujourd'hui
 router.post("/", (req, res) =>{
-    const today = moment() // Obtenir la date actuelle
+    const today = moment(req.body.date) // Obtenir la date actuelle
+console.log(today.toDate())
+
+console.log(moment(today).endOf('day').toDate())
+
+
     Trip.find({
         departure: req.body.departure, // Départ spécifié dans le corps de la requête POST
         arrival: req.body.arrival, // Arrivée spécifiée dans le corps de la requête POST
