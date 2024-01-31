@@ -3,6 +3,7 @@ var router = express.Router();
 
 const moment = require('moment');
 const Trip = require('../models/trips'); // Importer le modèle de trajet
+const Cart = require('../models/carts'); // Importer le modèle de panier
 
 router.get('/', (req, res) => {
     // Recherche de tous les documents dans la collection de trajets
@@ -39,14 +40,23 @@ console.log(moment(today).endOf('day').toDate())
     });
 });
 
-router .post("/store", (req, res) => {
-    const newCart = new cart({
+router.post("/store", (req, res) => {
+    const newCart = new Cart({
         isPaid:false,
         trip:req.body.id
-    })
-})
+    });
+    // Sauvegarder le nouveau panier dans la base de données
+    newCart.save()
+        .then(savedCart => {
+            res.json({ result: true, message: "Panier enregistré avec succès", cart: savedCart });
+        })
+        .catch(error => {
+            res.status(500).json({ result: false, error: "Une erreur s'est produite lors de l'enregistrement du panier." });
+        });
+});
 
-router .get("/getcarts", (req, res) => {
+
+router.get("/getcarts", (req, res) => {
     cart.find({isPaid:false}).then(trips=> {
         res.json({trips})
     });
