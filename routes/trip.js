@@ -39,6 +39,19 @@ console.log(moment(today).endOf('day').toDate())
     });
 });
 
+router .post("/store", (req, res) => {
+    const newCart = new cart({
+        isPaid:false,
+        trip:req.body.id
+    })
+})
+
+router .get("/getcarts", (req, res) => {
+    cart.find({isPaid:false}).then(trips=> {
+        res.json({trips})
+    });
+})
+
 module.exports = router;
 
 
